@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 
@@ -50,6 +51,8 @@ class Product(models.Model):
     category = models.ForeignKey('Category',
                                  on_delete=models.PROTECT,
                                  verbose_name='категория')
+    is_published = models.BooleanField(default=False,
+                                       verbose_name='публикация')
 
     def __str__(self):
         return self.title
@@ -61,4 +64,14 @@ class Product(models.Model):
         ordering = ('-title', 'price', 'created_at')
 
 
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='пользователь')
+    product = models.ForeignKey('Product', on_delete=models.DO_NOTHING, verbose_name='товар')
+    date_created = models.DateTimeField(default=timezone.now, verbose_name='дата')
+    is_paid = models.BooleanField(default=False, verbose_name='оплата')
 
+    class Meta:
+        db_table = 'app_orders'
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+        ordering = ('date_created',)
