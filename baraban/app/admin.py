@@ -2,6 +2,19 @@ from django.contrib import admin
 from .models import Category, Product, Order
 
 
+class ProductTabularInline(admin.TabularInline):
+    model = Product
+
+
+class AppAdminSite(admin.AdminSite):
+    site_header = 'SITE HEADER'
+    site_title = 'SITE TITLE'
+    index_title = 'INDEX TITLE'
+
+
+appadmin = AppAdminSite(name='appadmin')
+
+
 @admin.action(description='Опубликовать')
 def make_published(self, request, queryset):
     queryset.update(is_published=True)
@@ -19,6 +32,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ('product_category', 'is_published')
     search_fields = ('name', 'id')
     search_help_text = 'Введите название товара или id товара'
+    inlines = (ProductTabularInline,)
 
 
 @admin.register(Product)
@@ -35,3 +49,9 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'product', 'is_paid', 'date_created')
     list_filter = ('is_paid',)
     date_hierarchy = 'date_created'
+    readonly_fields = ('date_created',)
+
+
+appadmin.register(Category, CategoryAdmin)
+appadmin.register(Product, ProductAdmin)
+appadmin.register(Order, OrderAdmin)
